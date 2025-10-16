@@ -1,9 +1,4 @@
-macd:{[startDate;endDate;symb;fastPeriod;slowPeriod]
-	/getting first val from list so it is an atom
-	if[(type symb) ~ 11h; symb:first symb];	
-	
-	/getting table using .man.getTS
-	tab:.man.getTS[symb;startDate;endDate];
+macd:{[tab;fastPeriod;slowPeriod]
 
  	/ fast - short EMA period (default 12)
  	/ slow - long EMA period (default 26)
@@ -15,7 +10,7 @@ macd:{[startDate;endDate;symb;fastPeriod;slowPeriod]
 	signalLine:9;
 	
 	/get the closing price data from the function .man.getTS
-	closPx:exec tab[symb] from tab;
+	closPx:exec close from tab;
 
 	/now create the multipliers 
 	calcFast:2 %(fast +1);
@@ -36,7 +31,8 @@ macd:{[startDate;endDate;symb;fastPeriod;slowPeriod]
 	hist: macdLine - signalLine;
 	
 	/output as a table to create graph
-	res:select date, closePrice:closPx, ema12:ema12, ema26:ema26, macd:macdLine, signal:signalLine, histogram:hist from tab;
-	res
+	select date, close, ema12:ema12, ema26:ema26, macd:macdLine, signal:signalLine, histogram:hist from tab
 	};
+
+macdsignals:{[t]  update tradesignal:?[(prev[macd]>=signal)&(macd<signal);1;?[(prev[macd]<=signal)&(macd>signal);-1;0]] from t};
 /macd[2024.09.01;2024.09.30;`A]
